@@ -104,7 +104,7 @@ const extrairDados = (mensagem) => {
 async function processarMensagem(userId, novaMensagem) {
     try {
         const historico = await db.getHistory(userId);
-        let sessao = await db.getSession(userId) || {};
+        let sessao = await db.getSession(userId);
         
         // Verifica se é a primeira mensagem do usuário ou uma saudação
         const mensagemMin = novaMensagem.toLowerCase().trim();

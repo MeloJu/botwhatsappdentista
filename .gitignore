@@ -6,6 +6,6 @@ node_modules/
 
 # Ignora a pasta de sessões do WhatsApp Web
 .wwebjs_auth/
-
+.wwebjs_cache
 # Ignora arquivos de log, se houver
 npm-debug.log

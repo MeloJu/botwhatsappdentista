@@ -3,7 +3,6 @@ const db = new sqlite3.Database('chatbot.db');
 
 const initDb = () => {
     db.serialize(() => {
-        // Tabela para o histórico da conversa
         db.run(`
             CREATE TABLE IF NOT EXISTS conversations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -13,7 +12,6 @@ const initDb = () => {
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         `);
-        // Tabela para gerenciar sessões
         db.run(`
             CREATE TABLE IF NOT EXISTS sessions (
                 user_id TEXT PRIMARY KEY,
@@ -21,7 +19,6 @@ const initDb = () => {
                 agendamento_temp TEXT
             );
         `);
-        // Nova tabela para os agendamentos internos
         db.run(`
             CREATE TABLE IF NOT EXISTS agendamentos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,22 +34,64 @@ const initDb = () => {
 };
 
 const saveMessage = (userId, role, message) => {
-    // ... (A função saveMessage permanece a mesma)
+    return new Promise((resolve, reject) => {
+        const stmt = db.prepare("INSERT INTO conversations (user_id, role, message) VALUES (?, ?, ?)");
+        stmt.run(userId, role, message, function(err) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(this.lastID);
+            }
+        });
+        stmt.finalize();
+    });
 };
 
 const getHistory = (userId) => {
-    // ... (A função getHistory permanece a mesma)
+    return new Promise((resolve, reject) => {
+        db.all("SELECT role, message FROM conversations WHERE user_id = ? ORDER BY timestamp ASC", [userId], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                const history = rows.map(row => ({
+                    role: row.role === 'user' ? 'user' : 'model',
+                    text: row.message
+                }));
+                resolve(history);
+            }
+        });
+    });
 };
 
 const updateSession = (userId, slotEsperado = null, agendamentoTemp = null) => {
-    // ... (A função updateSession permanece a mesma)
+    return new Promise((resolve, reject) => {
+        const stmt = db.prepare("INSERT OR REPLACE INTO sessions (user_id, slot_esperado, agendamento_temp) VALUES (?, ?, ?)");
+        stmt.run(userId, slotEsperado, agendamentoTemp ? JSON.stringify(agendamentoTemp) : null, function(err) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(this.lastID);
+            }
+        });
+        stmt.finalize();
+    });
 };
 
 const getSession = (userId) => {
-    // ... (A função getSession permanece a mesma)
+    return new Promise((resolve, reject) => {
+        db.get("SELECT slot_esperado, agendamento_temp FROM sessions WHERE user_id = ?", [userId], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                if (row && row.agendamento_temp) {
+                    row.agendamento_temp = JSON.parse(row.agendamento_temp);
+                }
+                resolve(row || {});
+            }
+        });
+    });
 };
 
-// Nova função para salvar um agendamento
 const saveAgendamento = (agendamento) => {
     return new Promise((resolve, reject) => {
         const stmt = db.prepare(`
@@ -77,7 +116,6 @@ const saveAgendamento = (agendamento) => {
     });
 };
 
-// Nova função para listar horários ocupados
 const getHorariosOcupados = (data) => {
     return new Promise((resolve, reject) => {
         db.all("SELECT hora FROM agendamentos WHERE data = ?", [data], (err, rows) => {
@@ -91,4 +129,26 @@ const getHorariosOcupados = (data) => {
     });
 };
 
-module.exports = { initDb, saveMessage, getHistory, updateSession, getSession, saveAgendamento, getHorariosOcupados };
+const getAllAgendamentos = () => {
+    return new Promise((resolve, reject) => {
+        db.all("SELECT * FROM agendamentos ORDER BY id DESC", [], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+};
+
+
+module.exports = {
+    initDb,
+    saveMessage,
+    getHistory,
+    updateSession,
+    getSession,
+    saveAgendamento,
+    getHorariosOcupados,
+    getAllAgendamentos
+};

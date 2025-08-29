@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+            flex-direction: column;
+            text-align: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1a1a1a;
+        }
+        p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+        #qrcode-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Iniciar o Chatbot</h1>
+        <p>Clique no botão para iniciar a conexão com o WhatsApp.</p>
+        <button onclick="startBot()">Ligar Chatbot</button>
+        <div class="message" id="statusMessage"></div>
+        <div id="qrcode-container"></div>
+    </div>
+
+    <script>
+        async function startBot() {
+            document.getElementById('statusMessage').innerText = 'Iniciando o bot...';
+            try {
+                const response = await fetch('/start-bot');
+                const text = await response.text();
+                document.getElementById('statusMessage').innerText = text;
+                
+                // Agora, vamos verificar por 30 segundos se o QR Code foi gerado
+                const interval = setInterval(async () => {
+                    const qrResponse = await fetch('/api/qrcode');
+                    if (qrResponse.ok) {
+                        const qrUrl = await qrResponse.text();
+                        const qrcodeContainer = document.getElementById('qrcode-container');
+                        qrcodeContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code" width="250">`;
+                        document.getElementById('statusMessage').innerText = '✅ QR Code gerado! Por favor, escaneie com seu celular.';
+                        clearInterval(interval);
+                    }
+                }, 1000); // Tenta a cada 1 segundo
+            } catch (error) {
+                document.getElementById('statusMessage').innerText = 'Erro ao iniciar o bot. Verifique o terminal.';
+            }
+        }
+    </script>
+</body>
+</html>

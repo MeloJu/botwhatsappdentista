@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Consultas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .agendamento {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .agendamento:last-child {
+            border-bottom: none;
+        }
+        .agendamento p {
+            margin: 5px 0;
+        }
+        .agendamento strong {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Agenda de Consultas</h1>
+        <div id="agendamentos-list">
+            <p style="text-align: center;">Carregando agenda...</p>
+        </div>
+    </div>
+    <script>
+        fetch('/api/agenda')
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('agendamentos-list');
+                list.innerHTML = ''; // Limpa o "Carregando"
+                if (data.length === 0) {
+                    list.innerHTML = '<p style="text-align: center;">Nenhum agendamento encontrado.</p>';
+                } else {
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'agendamento';
+                        div.innerHTML = `
+                            <p><strong>Nome:</strong> ${item.nome}</p>
+                            <p><strong>Email:</strong> ${item.email}</p>
+                            <p><strong>Telefone:</strong> ${item.telefone}</p>
+                            <p><strong>Data:</strong> ${item.data}</p>
+                            <p><strong>Hora:</strong> ${item.hora}</p>
+                        `;
+                        list.appendChild(div);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar a agenda:', error);
+                document.getElementById('agendamentos-list').innerHTML = '<p style="text-align: center; color: red;">Não foi possível carregar a agenda.</p>';
+            });
+    </script>
+</body>
+</html>
