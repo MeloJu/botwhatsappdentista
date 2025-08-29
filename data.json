@@ -1,0 +1,19 @@
+{
+  "nome": "Instituto de Carvalho",
+  "telefone": "(22) 99999-9999",
+  "email": "institutodecarvalho@gmail.com",
+  "endereco": "Av Agenor Caldas, 193 Sala 303, Imbetiba, Macaé - RJ 27913-300",
+  "googleMaps": "https://g.co/kgs/znnjyh5",
+  "valores": {
+    "cirurgiaBucoMaxilo": 350,
+    "implante": 350,
+    "estetica": 300,
+    "protese": 300,
+    "ortodontia": 300,
+    "harmonizacao": 350
+  },
+  "horarios": {
+    "terca": "12:00h - 17:00h",
+    "sexta": "10:00h - 18:00h"
+  }
+}

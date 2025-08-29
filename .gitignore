@@ -1,0 +1,11 @@
+# Ignora a pasta de dependências do Node.js
+node_modules/
+
+# Ignora o arquivo de variáveis de ambiente com suas chaves de API
+.env
+
+# Ignora a pasta de sessões do WhatsApp Web
+.wwebjs_auth/
+
+# Ignora arquivos de log, se houver
+npm-debug.log
